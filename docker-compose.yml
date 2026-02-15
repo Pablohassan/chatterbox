@@ -1,0 +1,43 @@
+services:
+  monica-tts:
+    build: .
+    image: monica-tts:latest
+    container_name: monica-tts
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+    # NVIDIA GPU passthrough
+    # Requires: nvidia-container-toolkit on the host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - REFERENCE_AUDIO=26-monica--interview.wav
+      - REFERENCE_DURATION_S=120
+      - MAX_TEXT_LENGTH=500
+      # HuggingFace cache dir (persistent across restarts)
+      - HF_HOME=/app/hf_cache
+      - TRANSFORMERS_CACHE=/app/hf_cache
+
+    volumes:
+      # Persist HuggingFace model cache to avoid re-downloading
+      - hf_cache:/app/hf_cache
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+
+volumes:
+  hf_cache:

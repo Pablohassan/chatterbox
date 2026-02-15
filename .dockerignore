@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+*.md
+.vscode
+.idea
+hf_cache/
+*.log
