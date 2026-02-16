@@ -4,5 +4,5 @@ __pycache__/
 .env
 *.log
 hf_cache/
-*.wav
+
 !requirements.txt
